@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install all dependencies at build time
 RUN apt-get update && apt-get install -y \
-    openjdk-21-jre-headless \
+    openjdk-21-jdk-headless \
     wget \
     unzip \
     git \
@@ -28,6 +28,15 @@ RUN mkdir -p /opt/android/cmdline-tools && \
 ENV PATH=$PATH:/opt/android/cmdline-tools/latest/bin
 RUN yes | sdkmanager --licenses && sdkmanager "build-tools;34.0.0"
 ENV PATH=$PATH:/opt/android/build-tools/34.0.0
+
+# Install Ghidra
+ENV GHIDRA_VERSION=11.4.2
+ENV GHIDRA_INSTALL_DIR=/opt/ghidra
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${GHIDRA_VERSION}_build/ghidra_${GHIDRA_VERSION}_PUBLIC_20250826.zip -O /tmp/ghidra.zip && \
+    unzip /tmp/ghidra.zip -d /opt && \
+    mv /opt/ghidra_${GHIDRA_VERSION}_PUBLIC ${GHIDRA_INSTALL_DIR} && \
+    rm /tmp/ghidra.zip
 
 # Install pyghidra-mcp
 RUN pip install pyghidra-mcp
