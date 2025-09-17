@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install all dependencies at build time
 RUN apt-get update && apt-get install -y \
-    openjdk-17-jre \
+    openjdk-21-jre-headless \
     wget \
     unzip \
     git \
