@@ -23,9 +23,16 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: "Convert owner and repo name to lowercase"
+        id: string_ops
+        run: |
+          OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
+          REPO=$(echo ${{ github.event.repository.name }} | tr '[:upper:]' '[:lower:]')
+          echo "tags=ghcr.io/$OWNER/$REPO:latest" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+          tags: ${{ steps.string_ops.outputs.tags }}
