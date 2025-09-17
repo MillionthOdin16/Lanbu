@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lanbu</string>
+    <string name="network_discovery">Discovering LAN games...</string>
+    <string name="server_hosting">Hosting LAN game</string>
+    <string name="connect_to_server">Connect to Server</string>
+    <string name="host_game">Host Game</string>
+    <string name="join_game">Join Game</string>
+    <string name="disconnect">Disconnect</string>
+</resources>
