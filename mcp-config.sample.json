@@ -15,7 +15,7 @@
     "apk_signer": {
       "type": "local",
       "command": "docker",
-      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "uber-apk-signer-mcp" ],
+      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "uber-apk-signer-mcp-server" ],
       "tools": ["*"]
     },
     "keytool_generator": {
