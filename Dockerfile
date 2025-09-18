@@ -37,6 +37,9 @@ RUN chmod +x /usr/local/bin/uber-apk-signer-mcp-server
 COPY keytool-mcp-server.py /usr/local/bin/keytool-mcp-server
 RUN chmod +x /usr/local/bin/keytool-mcp-server
 
+COPY downloader.py /usr/local/bin/downloader-mcp-server
+RUN chmod +x /usr/local/bin/downloader-mcp-server
+
 # Install Ghidra
 ENV GHIDRA_VERSION=11.4.2
 ENV GHIDRA_INSTALL_DIR=/opt/ghidra
