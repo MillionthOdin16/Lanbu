@@ -1,0 +1,61 @@
+# APK Development Files
+*.apk
+lanbu.apk
+lanbu_extracted/
+apktool_mcp_server_workspace/
+
+# Temporary analysis files
+*.tmp
+*.temp
+/tmp/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker files
+.dockerignore
+
+# Build artifacts
+build/
+dist/
+out/
+
+# Decompiled output (keep workspace structure but exclude large files)
+lanbu_workspace/decompiled/output/
+lanbu_workspace/modified/temp/
+
+# Log files
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Java/Android build files
+*.class
+*.dex
+*.jar
+classes/
+
+# Unity specific
+*.unity3d
+*.meta
+
+# Large binary files (but keep the workspace structure)
+*.so
+*.dll
+*.exe
