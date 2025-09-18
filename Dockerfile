@@ -18,8 +18,10 @@ RUN wget https://github.com/iBotPeaches/Apktool/releases/download/v${APKTOOL_VER
     echo '#!/bin/sh\njava -jar /usr/local/bin/apktool.jar "$@"' > /usr/local/bin/apktool && \
     chmod +x /usr/local/bin/apktool
 
-# --- Install Apktool MCP Server ---
+# --- CORRECTED: Install Apktool MCP Server ---
 RUN git clone https://github.com/zinja-coder/apktool-mcp-server.git /opt/apktool-mcp-server && \
+    # Remove the problematic 'logging' package from requirements
+    sed -i '/logging/d' /opt/apktool-mcp-server/requirements.txt && \
     pip install -r /opt/apktool-mcp-server/requirements.txt && \
     echo '#!/bin/sh\npython3 /opt/apktool-mcp-server/main.py "$@"' > /usr/local/bin/apktool-mcp-server && \
     chmod +x /usr/local/bin/apktool-mcp-server
@@ -33,9 +35,7 @@ RUN git clone https://github.com/secfathy/uber-apk-signer-mcp.git /opt/uber-apk-
     echo '#!/bin/sh\npython3 /opt/uber-apk-signer-mcp/main.py --uber-apk-signer-path /usr/local/bin/uber-apk-signer.jar "$@"' > /usr/local/bin/uber-apk-signer-mcp && \
     chmod +x /usr/local/bin/uber-apk-signer-mcp
 
-# --- CORRECTED: Add the custom Keytool MCP Server wrapper ---
-# This assumes you created the script in the root of your project. 
-# If you put it in a 'scripts' folder, change the path to 'scripts/keytool-mcp-server.py'
+# --- Add the custom Keytool MCP Server wrapper ---
 COPY keytool-mcp-server.py /usr/local/bin/keytool-mcp-server
 RUN chmod +x /usr/local/bin/keytool-mcp-server
 
