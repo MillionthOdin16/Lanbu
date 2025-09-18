@@ -25,6 +25,9 @@ __pycache__/
 # MCP server logs
 mcp-server-*.log
 
+# Test files
+test_mcp_*.py
+
 # Docker build cache
 .dockerignore.tmp
 
