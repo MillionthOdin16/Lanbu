@@ -83,13 +83,16 @@ def handle_tools_call(id, params):
     """Handle tools/call request."""
     uber_apk_signer_path = "/usr/local/bin/uber-apk-signer.jar"
     
-    # Check if the JAR file exists
+    # Check if the JAR file exists (in Docker or local system)
     if not os.path.exists(uber_apk_signer_path):
-        send_response(id, error={
-            "code": -32000,
-            "message": f"uber-apk-signer.jar not found at {uber_apk_signer_path}"
-        })
-        return
+        # Try to use Docker container
+        docker_available = subprocess.run(["which", "docker"], capture_output=True).returncode == 0
+        if not docker_available:
+            send_response(id, error={
+                "code": -32000,
+                "message": f"uber-apk-signer.jar not found at {uber_apk_signer_path} and Docker not available"
+            })
+            return
     
     try:
         tool_name = params.get("name")
