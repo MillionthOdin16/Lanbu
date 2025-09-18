@@ -22,28 +22,26 @@ RUN wget https://github.com/iBotPeaches/Apktool/releases/download/v${APKTOOL_VER
 RUN git clone https://github.com/zinja-coder/apktool-mcp-server.git /opt/apktool-mcp-server && \
     sed -i '/logging/d' /opt/apktool-mcp-server/requirements.txt && \
     pip install -r /opt/apktool-mcp-server/requirements.txt && \
-    echo '#!/bin/sh\npython3 /opt/apktool-mcp-server/main.py "$@"' > /usr/local/bin/apktool-mcp-server && \
+    echo '#!/bin/sh\npython3 /opt/apktool-mcp-server/apktool_mcp_server.py "$@"' > /usr/local/bin/apktool-mcp-server && \
     chmod +x /usr/local/bin/apktool-mcp-server
 
-# --- CORRECTED: Install Uber APK Signer and its MCP Server ---
+# --- Install Uber APK Signer ---
 ENV UBER_APK_SIGNER_VERSION=1.3.0
-# The filename doesn't have a 'v' in it, which is now corrected.
 RUN wget https://github.com/patrickfav/uber-apk-signer/releases/download/v${UBER_APK_SIGNER_VERSION}/uber-apk-signer-${UBER_APK_SIGNER_VERSION}.jar -O /usr/local/bin/uber-apk-signer.jar
 
-RUN git clone https://github.com/secfathy/uber-apk-signer-mcp.git /opt/uber-apk-signer-mcp && \
-    pip install -r /opt/uber-apk-signer-mcp/requirements.txt && \
-    echo '#!/bin/sh\npython3 /opt/uber-apk-signer-mcp/main.py --uber-apk-signer-path /usr/local/bin/uber-apk-signer.jar "$@"' > /usr/local/bin/uber-apk-signer-mcp && \
-    chmod +x /usr/local/bin/uber-apk-signer-mcp
+# --- Add the Uber APK Signer MCP Server wrapper ---
+COPY uber-apk-signer-mcp-server.py /usr/local/bin/uber-apk-signer-mcp-server
+RUN chmod +x /usr/local/bin/uber-apk-signer-mcp-server
 
 # --- Add the custom Keytool MCP Server wrapper ---
 COPY keytool-mcp-server.py /usr/local/bin/keytool-mcp-server
 RUN chmod +x /usr/local/bin/keytool-mcp-server
 
 # Install Ghidra
-ENV GHIDRA_VERSION=11.1.2
+ENV GHIDRA_VERSION=11.4.2
 ENV GHIDRA_INSTALL_DIR=/opt/ghidra
 ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${GHIDRA_VERSION}_build/ghidra_${GHIDRA_VERSION}_PUBLIC_20240723.zip -O /tmp/ghidra.zip && \
+RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${GHIDRA_VERSION}_build/ghidra_${GHIDRA_VERSION}_PUBLIC_20250826.zip -O /tmp/ghidra.zip && \
     unzip /tmp/ghidra.zip -d /opt && \
     mv /opt/ghidra_${GHIDRA_VERSION}_PUBLIC ${GHIDRA_INSTALL_DIR} && \
     rm /tmp/ghidra.zip
