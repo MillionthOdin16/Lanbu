@@ -18,17 +18,17 @@ RUN wget https://github.com/iBotPeaches/Apktool/releases/download/v${APKTOOL_VER
     echo '#!/bin/sh\njava -jar /usr/local/bin/apktool.jar "$@"' > /usr/local/bin/apktool && \
     chmod +x /usr/local/bin/apktool
 
-# --- CORRECTED: Install Apktool MCP Server ---
+# --- Install Apktool MCP Server ---
 RUN git clone https://github.com/zinja-coder/apktool-mcp-server.git /opt/apktool-mcp-server && \
-    # Remove the problematic 'logging' package from requirements
     sed -i '/logging/d' /opt/apktool-mcp-server/requirements.txt && \
     pip install -r /opt/apktool-mcp-server/requirements.txt && \
     echo '#!/bin/sh\npython3 /opt/apktool-mcp-server/main.py "$@"' > /usr/local/bin/apktool-mcp-server && \
     chmod +x /usr/local/bin/apktool-mcp-server
 
-# --- Install Uber APK Signer and its MCP Server ---
+# --- CORRECTED: Install Uber APK Signer and its MCP Server ---
 ENV UBER_APK_SIGNER_VERSION=1.3.0
-RUN wget https://github.com/patrickfav/uber-apk-signer/releases/download/v${UBER_APK_SIGNER_VERSION}/uber-apk-signer-v${UBER_APK_SIGNER_VERSION}.jar -O /usr/local/bin/uber-apk-signer.jar
+# The filename doesn't have a 'v' in it, which is now corrected.
+RUN wget https://github.com/patrickfav/uber-apk-signer/releases/download/v${UBER_APK_SIGNER_VERSION}/uber-apk-signer-${UBER_APK_SIGNER_VERSION}.jar -O /usr/local/bin/uber-apk-signer.jar
 
 RUN git clone https://github.com/secfathy/uber-apk-signer-mcp.git /opt/uber-apk-signer-mcp && \
     pip install -r /opt/uber-apk-signer-mcp/requirements.txt && \
