@@ -46,13 +46,34 @@ def handle_tools_list(id, params):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "args": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "Arguments to pass to uber-apk-signer"
+                        "apk_path": {
+                            "type": "string",
+                            "description": "Path to the APK file to sign"
+                        },
+                        "output_path": {
+                            "type": "string",
+                            "description": "Output path for the signed APK"
+                        },
+                        "keystore_path": {
+                            "type": "string",
+                            "description": "Path to keystore file (optional)"
                         }
                     },
-                    "required": ["args"]
+                    "required": ["apk_path"]
+                }
+            },
+            {
+                "name": "verify_apk",
+                "description": "Verify APK signature using uber-apk-signer",
+                "inputSchema": {
+                    "type": "object", 
+                    "properties": {
+                        "apk_path": {
+                            "type": "string",
+                            "description": "Path to the APK file to verify"
+                        }
+                    },
+                    "required": ["apk_path"]
                 }
             }
         ]
@@ -73,18 +94,47 @@ def handle_tools_call(id, params):
     try:
         tool_name = params.get("name")
         arguments = params.get("arguments", {})
-        command_args = arguments.get("args", [])
 
-        if tool_name != "sign_apk":
+        if tool_name == "sign_apk":
+            apk_path = arguments.get("apk_path")
+            output_path = arguments.get("output_path")
+            keystore_path = arguments.get("keystore_path")
+            
+            if not apk_path:
+                send_response(id, error={
+                    "code": -32602,
+                    "message": "apk_path is required"
+                })
+                return
+                
+            # Build command for signing
+            cmd = ["java", "-jar", uber_apk_signer_path, "--apks", apk_path]
+            if output_path:
+                cmd.extend(["--out", output_path])
+            if keystore_path:
+                cmd.extend(["--ks", keystore_path])
+                
+        elif tool_name == "verify_apk":
+            apk_path = arguments.get("apk_path")
+            
+            if not apk_path:
+                send_response(id, error={
+                    "code": -32602,
+                    "message": "apk_path is required"
+                })
+                return
+                
+            # Build command for verification
+            cmd = ["java", "-jar", uber_apk_signer_path, "--verify", "--apks", apk_path]
+            
+        else:
             send_response(id, error={
                 "code": -32601,
                 "message": f"Unknown tool: {tool_name}"
             })
             return
 
-        # Execute uber-apk-signer with the provided arguments
-        cmd = ["java", "-jar", uber_apk_signer_path] + command_args
-        
+        # Execute uber-apk-signer
         process = subprocess.run(
             cmd,
             capture_output=True,
@@ -93,7 +143,7 @@ def handle_tools_call(id, params):
             timeout=60
         )
         
-        output = f"STDOUT:\n{process.stdout}\nSTDERR:\n{process.stderr}"
+        output = f"Command: {' '.join(cmd)}\n\nSTDOUT:\n{process.stdout}\nSTDERR:\n{process.stderr}\nExit Code: {process.returncode}"
         send_response(id, {
             "content": [
                 {
