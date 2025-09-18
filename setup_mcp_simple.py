@@ -81,9 +81,9 @@ def main():
     
     # Test MCP servers
     servers = {
-        "apk_signer": f"docker run -i --rm -v {workspace}:/workspace -w /workspace {image} uber-apk-signer-mcp-server",
-        "keytool_generator": f"docker run -i --rm -v {workspace}:/workspace -w /workspace {image} keytool-mcp-server",
-        "downloader": f"docker run -i --rm -v {workspace}:/workspace -w /workspace {image} downloader-mcp-server",
+        "apk_signer": f"docker run -i --rm -v {workspace}:/workspace -w /workspace {image} python3 uber-apk-signer-mcp-server.py",
+        "keytool_generator": f"docker run -i --rm -v {workspace}:/workspace -w /workspace {image} python3 keytool-mcp-server.py",
+        "downloader": f"docker run -i --rm -v {workspace}:/workspace -w /workspace {image} python3 downloader.py",
     }
     
     working_servers = {}
@@ -104,7 +104,7 @@ def main():
                 "-v", "/github/workspace:/workspace",
                 "-w", "/workspace",
                 "ghcr.io/millionthodin16/lanbu:latest",
-                "uber-apk-signer-mcp-server"
+                "python3", "uber-apk-signer-mcp-server.py"
             ],
             "tools": ["*"]
         }
@@ -118,7 +118,7 @@ def main():
                 "-v", "/github/workspace:/workspace",
                 "-w", "/workspace",
                 "ghcr.io/millionthodin16/lanbu:latest",
-                "keytool-mcp-server"
+                "python3", "keytool-mcp-server.py"
             ],
             "tools": ["*"]
         }
@@ -132,7 +132,7 @@ def main():
                 "-v", "/github/workspace:/workspace",
                 "-w", "/workspace",
                 "ghcr.io/millionthodin16/lanbu:latest",
-                "downloader-mcp-server"
+                "python3", "downloader.py"
             ],
             "tools": ["*"]
         }

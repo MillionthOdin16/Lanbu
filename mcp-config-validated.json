@@ -12,7 +12,8 @@
         "-w",
         "/workspace",
         "ghcr.io/millionthodin16/lanbu:latest",
-        "uber-apk-signer-mcp-server"
+        "python3",
+        "uber-apk-signer-mcp-server.py"
       ],
       "tools": [
         "*"
@@ -30,7 +31,8 @@
         "-w",
         "/workspace",
         "ghcr.io/millionthodin16/lanbu:latest",
-        "keytool-mcp-server"
+        "python3",
+        "keytool-mcp-server.py"
       ],
       "tools": [
         "*"
@@ -48,7 +50,8 @@
         "-w",
         "/workspace",
         "ghcr.io/millionthodin16/lanbu:latest",
-        "downloader-mcp-server"
+        "python3",
+        "downloader.py"
       ],
       "tools": [
         "*"

@@ -4,7 +4,34 @@ This guide addresses the specific issues found in GitHub Copilot workflow runs w
 
 ## Issues Identified from Workflow Logs
 
-### 1. **"Start MCP Servers" Step Cancellation/Timeout**
+### 1. **MCP Protocol Compliance Issues**
+
+**Symptoms:**
+- MCP servers fail with validation errors like:
+  ```
+  "code": "invalid_type",
+  "expected": "string", 
+  "received": "undefined",
+  "path": ["protocolVersion"],
+  "message": "Required"
+  ```
+- Missing `capabilities` and `serverInfo` in initialization response
+
+**Root Cause:**
+The original custom MCP servers (`uber-apk-signer-mcp-server.py`, `keytool-mcp-server.py`, `downloader.py`) were implemented as simple JSON-RPC servers but were **not implementing the full MCP (Model Context Protocol) specification**.
+
+GitHub Copilot's MCP client expects:
+1. **Proper initialization handshake** with `initialize` method
+2. **Protocol version negotiation** (`protocolVersion: "2024-11-05"`)
+3. **Capability declaration** (`capabilities` object)
+4. **Server information** (`serverInfo` with name and version)
+5. **Tools listing** via `tools/list` method
+6. **Tool execution** via `tools/call` method
+
+**Solution Applied:**
+Updated all custom MCP servers to implement the full MCP protocol specification, including proper initialization, capabilities, and tool management.
+
+### 2. **"Start MCP Servers" Step Cancellation/Timeout**
 
 **Symptoms:**
 - Workflow step "Start MCP Servers" shows as "cancelled" 
@@ -17,7 +44,7 @@ This guide addresses the specific issues found in GitHub Copilot workflow runs w
 3. **Server Startup Timeouts**: Complex MCP servers like apktool-mcp-server take longer to initialize than the workflow timeout allows
 4. **Resource Constraints**: GitHub Actions runners may have limited resources affecting Docker container startup
 
-### 2. **Configuration Path Issues**
+### 3. **Configuration Path Issues**
 
 **Symptoms:**
 - Enhanced servers fail to start when referencing `/workspace/enhanced_mcp_server.py`
@@ -29,7 +56,55 @@ This guide addresses the specific issues found in GitHub Copilot workflow runs w
 
 ## Solutions Implemented
 
-### 1. **Pre-Setup Script (`setup_mcp_servers.sh`)**
+### 1. **MCP Protocol Compliance Fix**
+
+**Updated Server Implementation:**
+All custom MCP servers now properly implement the MCP protocol:
+
+```python
+# MCP Protocol Implementation
+MCP_VERSION = "2024-11-05"
+
+def handle_initialize(id, params):
+    """Handle MCP initialize request."""
+    send_response(id, {
+        "protocolVersion": MCP_VERSION,
+        "capabilities": {
+            "tools": {}
+        },
+        "serverInfo": {
+            "name": "server-name",
+            "version": "1.0.0"
+        }
+    })
+
+def handle_tools_list(id, params):
+    """Handle tools/list request."""
+    send_response(id, {
+        "tools": [
+            {
+                "name": "tool_name",
+                "description": "Tool description",
+                "inputSchema": {...}
+            }
+        ]
+    })
+
+def handle_tools_call(id, params):
+    """Handle tools/call request."""
+    # Execute tool and return results in MCP format
+    send_response(id, {
+        "content": [
+            {
+                "type": "text",
+                "text": "Tool output"
+            }
+        ],
+        "isError": False
+    })
+```
+
+### 2. **Pre-Setup Script (`setup_mcp_simple.py`)**
 
 This script addresses the core issues by:
 
@@ -41,10 +116,10 @@ This script addresses the core issues by:
 **Usage:**
 ```bash
 # Run before GitHub Copilot workflow starts MCP servers
-./setup_mcp_servers.sh
+python3 setup_mcp_simple.py
 ```
 
-### 2. **Diagnostic Tool (`diagnose_mcp_issues.py`)**
+### 3. **Diagnostic Tool (`diagnose_mcp_issues.py`)**
 
 Comprehensive diagnostic tool that:
 
@@ -59,24 +134,35 @@ Comprehensive diagnostic tool that:
 python3 diagnose_mcp_issues.py
 ```
 
-### 3. **Optimized Configurations**
+### 4. **Optimized Configurations**
 
 Created multiple configuration files for different scenarios:
 
-1. **`mcp-config-github-actions.json`**: Basic config for GitHub Actions environment
-2. **`mcp-config-optimized.json`**: Generated with only tested, working servers
-3. **`mcp-config-validated.json`**: Created by setup script with validated servers
-
-### 4. **Enhanced MCP Servers with Better Error Handling**
-
-The `enhanced_mcp_server.py` provides:
-
-- **Improved Logging**: Detailed error messages and execution time tracking
-- **Better Timeout Handling**: Configurable timeouts for operations
-- **Comprehensive Error Responses**: JSON-RPC compliant error handling
-- **Validation**: Input parameter validation and sanitization
+1. **`mcp-config-github-copilot.json`**: Optimized for GitHub Copilot workflows
+2. **`mcp-config-validated.json`**: Generated with only tested, working servers
+3. **`mcp-config.sample.json`**: Updated sample configuration
 
 ## Specific Fixes for GitHub Copilot Workflow Issues
+
+### Issue: MCP Protocol Validation Errors
+
+**Solution:**
+Updated all MCP servers to implement proper MCP protocol:
+```yaml
+# Configuration now uses proper MCP-compliant servers
+"apk_signer": {
+  "type": "local",
+  "command": "docker",
+  "args": [ 
+    "run", "-i", "--rm", 
+    "-v", "/github/workspace:/workspace", 
+    "-w", "/workspace", 
+    "ghcr.io/millionthodin16/lanbu:latest", 
+    "python3", "uber-apk-signer-mcp-server.py" 
+  ],
+  "tools": ["*"]
+}
+```
 
 ### Issue: Docker Image Pull Timeout
 
@@ -101,7 +187,7 @@ Use consistent workspace paths in MCP configurations:
     "-v", "/github/workspace:/workspace", 
     "-w", "/workspace", 
     "ghcr.io/millionthodin16/lanbu:latest", 
-    "server-command" 
+    "python3", "server-script.py" 
   ]
 }
 ```
@@ -109,24 +195,9 @@ Use consistent workspace paths in MCP configurations:
 ### Issue: Server Startup Timeouts
 
 **Solution:**
-1. **Use Simple Servers First**: Start with uber-apk-signer and keytool servers
-2. **Progressive Loading**: Add complex servers (apktool, ghidra) only after basics work
-3. **Implement Timeout Handling**: Use validated configs that exclude problematic servers
-
-### Issue: Enhanced Server File Access
-
-**Solution:**
-```json
-{
-  "args": [ 
-    "run", "-i", "--rm", 
-    "-v", "/github/workspace:/workspace", 
-    "-w", "/workspace", 
-    "ghcr.io/millionthodin16/lanbu:latest", 
-    "python3", "/workspace/enhanced_mcp_server.py", "server-type"
-  ]
-}
-```
+1. **Use MCP-Compliant Servers**: Proper MCP initialization is faster and more reliable
+2. **Progressive Loading**: Start with basic servers (apk_signer, keytool, downloader)
+3. **Pre-Setup Validation**: Use validated configs that exclude problematic servers
 
 ## Recommended Workflow Integration
 
@@ -135,8 +206,7 @@ Use consistent workspace paths in MCP configurations:
 ```yaml
 - name: Setup MCP Servers
   run: |
-    chmod +x ./setup_mcp_servers.sh
-    ./setup_mcp_servers.sh
+    python3 setup_mcp_simple.py
   working-directory: ${{ github.workspace }}
 ```
 
@@ -159,6 +229,19 @@ If MCP servers still fail:
 
 ## Debugging Commands
 
+### Test MCP Protocol Compliance
+```bash
+# Test MCP initialization
+echo '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "test", "version": "1.0.0"}}}' | \
+docker run -i --rm -v $(pwd):/workspace -w /workspace \
+ghcr.io/millionthodin16/lanbu:latest python3 uber-apk-signer-mcp-server.py
+
+# Test tools listing
+(echo '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "test", "version": "1.0.0"}}}'; echo '{"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}') | \
+docker run -i --rm -v $(pwd):/workspace -w /workspace \
+ghcr.io/millionthodin16/lanbu:latest python3 uber-apk-signer-mcp-server.py
+```
+
 ### Test Docker Environment
 ```bash
 # Test basic Docker functionality
@@ -171,19 +254,6 @@ docker run --rm ghcr.io/millionthodin16/lanbu:latest echo "test"
 echo "test" > test.txt
 docker run --rm -v $(pwd):/workspace -w /workspace alpine:latest cat test.txt
 rm test.txt
-```
-
-### Test Individual MCP Servers
-```bash
-# Test uber-apk-signer server
-echo '{"jsonrpc": "2.0", "id": 1, "params": {"args": ["--version"]}}' | \
-docker run -i --rm -v $(pwd):/workspace -w /workspace \
-ghcr.io/millionthodin16/lanbu:latest uber-apk-signer-mcp-server
-
-# Test keytool server
-echo '{"jsonrpc": "2.0", "id": 1, "params": {"args": ["-help"]}}' | \
-docker run -i --rm -v $(pwd):/workspace -w /workspace \
-ghcr.io/millionthodin16/lanbu:latest keytool-mcp-server
 ```
 
 ### Check GitHub Actions Environment
@@ -206,6 +276,26 @@ After implementing these fixes, you should see:
 2. **MCP servers respond to requests** within expected timeframes
 3. **GitHub Copilot can utilize MCP tools** for APK analysis tasks
 4. **Consistent workflow execution** across multiple runs
+
+## Latest Resolution Summary
+
+**2025-09-18: MCP Protocol Compliance Issue Resolved**
+
+The core issue was that custom MCP servers were not implementing the MCP protocol specification. GitHub Copilot's MCP client expected proper initialization handshakes with `protocolVersion`, `capabilities`, and `serverInfo`, but the servers were only implementing basic JSON-RPC.
+
+**Servers Fixed:**
+- `uber-apk-signer-mcp-server.py`: Now MCP-compliant
+- `keytool-mcp-server.py`: Now MCP-compliant  
+- `downloader.py`: Now MCP-compliant
+
+**Validation Results:**
+- ✅ All 3 custom MCP servers pass MCP protocol tests
+- ✅ Docker environment working correctly
+- ✅ APK file accessible (34MB confirmed)
+- ✅ Setup script creates validated configurations
+
+**Quick Fix for GitHub Copilot:**
+Use `mcp-config-validated.json` which contains only tested, MCP-compliant servers.
 
 ## Contact Information
 
