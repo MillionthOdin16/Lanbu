@@ -15,19 +15,19 @@
     "apk_signer": {
       "type": "local",
       "command": "docker",
-      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "uber-apk-signer-mcp-server" ],
+      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "python3", "uber-apk-signer-mcp-server.py" ],
       "tools": ["*"]
     },
     "keytool_generator": {
       "type": "local",
       "command": "docker",
-      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "keytool-mcp-server" ],
+      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "python3", "keytool-mcp-server.py" ],
       "tools": ["*"]
     },
     "downloader": {
       "type": "local",
       "command": "docker",
-      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "downloader-mcp-server" ],
+      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "python3", "downloader.py" ],
       "tools": ["*"]
     }
   }

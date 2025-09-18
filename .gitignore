@@ -1,0 +1,44 @@
+# Temporary files and build artifacts
+*.tmp
+*.temp
+*.log
+*.pid
+.DS_Store
+Thumbs.db
+
+# APKTool workspace
+apktool_workspace/
+*.apk.bak
+dist/
+build/
+
+# Downloaded files (except the main APK)
+robots.txt
+downloaded_file*
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# MCP server logs
+mcp-server-*.log
+
+# Docker build cache
+.dockerignore.tmp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
