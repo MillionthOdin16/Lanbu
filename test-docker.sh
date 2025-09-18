@@ -41,6 +41,7 @@ fi
 # Test MCP servers
 echo "Testing MCP servers..."
 APKTOOL_MCP=$(docker run --rm lanbu:latest ls -la /usr/local/bin/apktool-mcp-server 2>/dev/null)
+UBER_MCP=$(docker run --rm lanbu:latest ls -la /usr/local/bin/uber-apk-signer-mcp-server 2>/dev/null)
 KEYTOOL_MCP=$(docker run --rm lanbu:latest ls -la /usr/local/bin/keytool-mcp-server 2>/dev/null)
 
 if [ -n "$APKTOOL_MCP" ]; then
@@ -49,10 +50,25 @@ else
     echo "  ❌ Apktool MCP server missing"
 fi
 
+if [ -n "$UBER_MCP" ]; then
+    echo "  ✅ Uber APK Signer MCP server available"
+else
+    echo "  ❌ Uber APK Signer MCP server missing"
+fi
+
 if [ -n "$KEYTOOL_MCP" ]; then
     echo "  ✅ Keytool MCP server available"
 else
     echo "  ❌ Keytool MCP server missing"
+fi
+
+# Test MCP server functionality
+echo "Testing MCP server responses..."
+UBER_MCP_RESPONSE=$(echo '{"id": 1, "params": {"args": ["--version"]}}' | docker run --rm -i lanbu:latest uber-apk-signer-mcp-server 2>/dev/null | grep -o '"exitCode": 0' || echo "failed")
+if [ "$UBER_MCP_RESPONSE" = '"exitCode": 0' ]; then
+    echo "  ✅ Uber APK Signer MCP server responds correctly"
+else
+    echo "  ❌ Uber APK Signer MCP server not responding correctly"
 fi
 
 echo ""

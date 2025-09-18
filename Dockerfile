@@ -22,15 +22,16 @@ RUN wget https://github.com/iBotPeaches/Apktool/releases/download/v${APKTOOL_VER
 RUN git clone https://github.com/zinja-coder/apktool-mcp-server.git /opt/apktool-mcp-server && \
     sed -i '/logging/d' /opt/apktool-mcp-server/requirements.txt && \
     pip install -r /opt/apktool-mcp-server/requirements.txt && \
-    echo '#!/bin/sh\npython3 /opt/apktool-mcp-server/main.py "$@"' > /usr/local/bin/apktool-mcp-server && \
+    echo '#!/bin/sh\npython3 /opt/apktool-mcp-server/apktool_mcp_server.py "$@"' > /usr/local/bin/apktool-mcp-server && \
     chmod +x /usr/local/bin/apktool-mcp-server
 
 # --- Install Uber APK Signer ---
 ENV UBER_APK_SIGNER_VERSION=1.3.0
 RUN wget https://github.com/patrickfav/uber-apk-signer/releases/download/v${UBER_APK_SIGNER_VERSION}/uber-apk-signer-${UBER_APK_SIGNER_VERSION}.jar -O /usr/local/bin/uber-apk-signer.jar
 
-# Note: uber-apk-signer-mcp is not available in a compatible Python version
-# The uber-apk-signer.jar can be used directly via Java commands
+# --- Add the Uber APK Signer MCP Server wrapper ---
+COPY uber-apk-signer-mcp-server.py /usr/local/bin/uber-apk-signer-mcp-server
+RUN chmod +x /usr/local/bin/uber-apk-signer-mcp-server
 
 # --- Add the custom Keytool MCP Server wrapper ---
 COPY keytool-mcp-server.py /usr/local/bin/keytool-mcp-server

@@ -13,7 +13,9 @@ A containerized Android reverse engineering and analysis toolkit containing:
 ## MCP Servers Available
 
 - **apktool-mcp-server** - APKTool integration via Model Context Protocol
+- **uber-apk-signer-mcp-server** - Uber APK Signer integration via MCP
 - **keytool-mcp-server** - Custom keytool wrapper for MCP
+- **pyghidra-mcp** - Ghidra integration via MCP
 
 ## Building the Container
 
@@ -47,13 +49,29 @@ docker run --rm -v $(pwd):/workspace lanbu:latest \
   -keystore /workspace/my-release-key.keystore
 ```
 
+### MCP Server Usage
+
+The container includes MCP (Model Context Protocol) servers for autonomous coding agents:
+
+```bash
+# Test APKTool MCP Server
+echo '{"id": 1, "params": {"args": ["--help"]}}' | \
+  docker run --rm -i lanbu:latest apktool-mcp-server
+
+# Test Uber APK Signer MCP Server  
+echo '{"id": 1, "params": {"args": ["--version"]}}' | \
+  docker run --rm -i lanbu:latest uber-apk-signer-mcp-server
+
+# Test Keytool MCP Server
+echo '{"id": 1, "params": {"args": ["-help"]}}' | \
+  docker run --rm -i lanbu:latest keytool-mcp-server
+```
+
 ### Interactive Shell
 ```bash
 # Get an interactive shell in the container
 docker run --rm -it -v $(pwd):/workspace lanbu:latest /bin/bash
 ```
-
-## Testing
 
 Run the included test script to verify all tools work correctly:
 
