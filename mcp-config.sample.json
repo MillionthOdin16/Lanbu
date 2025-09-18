@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "ghidra_analyzer": {
+      "type": "local",
+      "command": "docker",
+      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "pyghidra-mcp", "-t", "stdio" ],
+      "tools": ["*"]
+    },
+    "apk_tool": {
+      "type": "local",
+      "command": "docker",
+      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "apktool-mcp-server" ],
+      "tools": ["*"]
+    },
+    "apk_signer": {
+      "type": "local",
+      "command": "docker",
+      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "uber-apk-signer-mcp" ],
+      "tools": ["*"]
+    },
+    "keytool_generator": {
+      "type": "local",
+      "command": "docker",
+      "args": [ "run", "-i", "--rm", "-v", "/github/workspace:/workspace", "-w", "/workspace", "ghcr.io/millionthodin16/lanbu:latest", "keytool-mcp-server" ],
+      "tools": ["*"]
+    }
+  }
+}
