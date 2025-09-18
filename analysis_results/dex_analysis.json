@@ -1,0 +1,26 @@
+{
+  "classes3.dex": {
+    "size": 3592,
+    "strings": {}
+  },
+  "classes2.dex": {
+    "size": 8061460,
+    "strings": {
+      "network": 76,
+      "crypto": 494,
+      "auth": 980,
+      "database": 216,
+      "debug": 631
+    }
+  },
+  "classes.dex": {
+    "size": 8560212,
+    "strings": {
+      "network": 43,
+      "crypto": 132,
+      "auth": 1168,
+      "database": 1389,
+      "debug": 1217
+    }
+  }
+}

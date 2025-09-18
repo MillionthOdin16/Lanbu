@@ -51,3 +51,17 @@ RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghid
 
 # Install pyghidra-mcp
 RUN pip install pyghidra-mcp
+
+# Copy analysis scripts into the container
+COPY apk_analysis.py /usr/local/bin/apk-analysis
+COPY comprehensive_apk_analysis.py /usr/local/bin/comprehensive-apk-analysis
+COPY ghidra_apk_analysis.py /usr/local/bin/ghidra-apk-analysis
+COPY docker_apk_analysis.py /usr/local/bin/docker-apk-analysis
+RUN chmod +x /usr/local/bin/apk-analysis /usr/local/bin/comprehensive-apk-analysis /usr/local/bin/ghidra-apk-analysis /usr/local/bin/docker-apk-analysis
+
+# Set up workspace directory
+RUN mkdir -p /workspace
+WORKDIR /workspace
+
+# Set environment variables for the analysis tools
+ENV APK_ANALYSIS_WORKSPACE=/workspace
