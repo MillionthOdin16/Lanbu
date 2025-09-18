@@ -12,7 +12,8 @@ def send_response(id, result):
 
 def main():
     """Main loop to read requests and execute uber-apk-signer commands."""
-    uber_apk_signer_path = "/usr/local/bin/uber-apk-signer.jar"
+    # Allow overriding the path for testing purposes
+    uber_apk_signer_path = os.environ.get("UBER_APK_SIGNER_JAR_PATH", "/usr/local/bin/uber-apk-signer.jar")
     
     # Check if the JAR file exists
     if not os.path.exists(uber_apk_signer_path):
@@ -24,14 +25,19 @@ def main():
         if not line:
             break
         
+        req_id = None
         try:
+            line = line.strip()
+            if not line:
+                continue
+
             request = json.loads(line)
             req_id = request.get("id")
             params = request.get("params", {})
             command_args = params.get("args", [])
 
             # Execute uber-apk-signer with the provided arguments
-            # The command will be: java -jar /usr/local/bin/uber-apk-signer.jar [args]
+            # The command will be: java -jar [uber_apk_signer_path] [args]
             cmd = ["java", "-jar", uber_apk_signer_path] + command_args
             
             process = subprocess.run(
