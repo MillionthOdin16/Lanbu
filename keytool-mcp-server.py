@@ -44,7 +44,9 @@ def handle_initialize(id, params):
     send_response(id, {
         "protocolVersion": MCP_VERSION,
         "capabilities": {
-            "tools": {}
+            "tools": {
+                "listChanged": False
+            }
         },
         "serverInfo": {
             "name": "keytool-mcp-server",

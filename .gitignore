@@ -29,6 +29,7 @@ mcp-server-*.log
 test_mcp_basic.py
 test_mcp_execution.py
 test_mcp_servers.py
+test_mcp_tools_compliance.py
 
 # Docker build cache
 .dockerignore.tmp
