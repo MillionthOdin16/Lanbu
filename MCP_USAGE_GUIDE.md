@@ -88,12 +88,36 @@ The repository includes a Docker configuration that provides all tools in a sing
 # Build the container
 docker build -t lanbu .
 
-# Run with volume mapping for your workspace
+# Run with volume mapping for your workspace (RECOMMENDED)
 docker run -i --rm -v /your/workspace:/workspace -w /workspace lanbu python3 uber-apk-signer-mcp-server.py
+
+# For APK analysis, mount your APK directory:
+docker run -i --rm -v /path/to/your/apks:/workspace lanbu apk-analysis
 
 # Use with MCP configuration
 # See mcp-config.sample.json for configuration examples
 ```
+
+### APK Analysis in Docker
+
+To analyze APK files using the Docker container, you have two options:
+
+1. **Volume Mounting (Recommended)**: Mount your APK directory to `/workspace`
+   ```bash
+   # Single APK analysis
+   docker run --rm -v /path/to/apk/directory:/workspace lanbu comprehensive-apk-analysis /workspace/your-app.apk
+   
+   # Auto-detect APKs in mounted directory
+   docker run --rm -v /path/to/apk/directory:/workspace lanbu apk-analysis
+   ```
+
+2. **Copy APK to Container**: For one-time analysis
+   ```bash
+   # Build container with APK included
+   COPY your-app.apk /workspace/
+   ```
+
+**Important**: The MCP servers expect APK files to be accessible via volume mounts at `/workspace`. This ensures proper file access and output generation.
 
 ## MCP Configuration
 
