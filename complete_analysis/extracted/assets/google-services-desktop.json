@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "910393108933",
+    "project_id": "lanbu-43608",
+    "storage_bucket": "lanbu-43608.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:910393108933:android:021b965aafd7b5e9b203ac",
+        "android_client_info": {
+          "package_name": "com.Glowbeast.LanBu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnAqhR2abrLhmyMYDLYpQUgXQeR1EoqIQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
